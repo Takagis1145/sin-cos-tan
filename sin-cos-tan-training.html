@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>三角比トレーナー</title>
+<style>
+:root{--bg:#eef3f7;--panel:#fff;--ink:#14213d;--sub:#5b6b82;--line:#c9d6e3;--acc:#1f5eff;--ok:#0f8a5f;--ng:#d6336c;--ang:#e08a00;--grid:#dbe5ee;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1522;--panel:#17213a;--ink:#e8eef9;--sub:#93a3bd;--line:#2c3b5c;--acc:#6f9bff;--ok:#3ccf91;--ng:#ff7aa8;--ang:#ffb347;--grid:#1c2842}}
+:root[data-theme="dark"]{--bg:#0e1522;--panel:#17213a;--ink:#e8eef9;--sub:#93a3bd;--line:#2c3b5c;--acc:#6f9bff;--ok:#3ccf91;--ng:#ff7aa8;--ang:#ffb347;--grid:#1c2842}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;color:var(--ink);font-family:"Hiragino Sans","Noto Sans JP","Yu Gothic",system-ui,sans-serif;line-height:1.6;min-height:100vh}
+main{max-width:560px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.5rem;margin:8px 0 4px;letter-spacing:.02em}
+.lead{color:var(--sub);margin:0 0 20px;font-size:.92rem}
+.card{background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+.card h2{font-size:1rem;margin:0 0 10px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.mode{display:block;width:100%;text-align:left;background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.mode:hover{border-color:var(--acc)}
+.mode b{display:block}.mode span{color:var(--sub);font-size:.85rem}
+.mode.rv{border-color:var(--ng)}
+.mode:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{border:1.5px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 14px}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.small{font-size:.82rem;color:var(--sub)}
+.link{background:none;border:none;color:var(--sub);text-decoration:underline;padding:4px 0}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:.9rem;color:var(--sub);margin-bottom:8px}
+.q{font-family:Georgia,"Times New Roman",serif;font-size:2rem;text-align:center;margin:4px 0 6px}
+.q em{color:var(--ang)}
+svg{width:100%;height:auto;display:block}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:6px 0 12px}
+.bar i{display:block;height:100%;width:100%;background:var(--acc)}
+.bar i.low{background:var(--ng)}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ch{background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:12px 4px;font-family:Georgia,serif;font-size:1.25rem;min-height:64px}
+.ch:hover:not(:disabled){border-color:var(--acc)}
+.ch.right{background:var(--ok);color:#fff;border-color:var(--ok)}
+.ch.wrong{background:var(--ng);color:#fff;border-color:var(--ng)}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.15}
+.fr i{font-style:normal;padding:0 4px}.fr i:first-child{border-bottom:1.5px solid currentColor}
+.ans{display:flex;gap:8px}
+.ans input{flex:1;min-width:0;font:inherit;font-size:1.2rem;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink)}
+.go{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-weight:700}
+.go.sec{background:var(--panel);color:var(--ink);border:1.5px solid var(--line)}
+.res{border-width:2px}
+.res.ok{border-color:var(--ok)}.res.ng{border-color:var(--ng)}
+.verdict{font-size:1.2rem;font-weight:700;margin:0 0 6px}
+.ok .verdict{color:var(--ok)}.ng .verdict{color:var(--ng)}
+.exp{margin:8px 0;font-size:.95rem}
+.exp .m{font-family:Georgia,serif;font-size:1.1rem}
+.tip{background:var(--bg);border-radius:8px;padding:8px 10px;font-size:.85rem;color:var(--sub);margin-top:8px}
+.big{font-size:2.6rem;font-family:Georgia,serif;text-align:center;margin:6px 0}
+.hide{display:none}
+table.t{width:100%;border-collapse:collapse;text-align:center;font-family:Georgia,serif;font-size:1.25rem}
+table.t th,table.t td{border:1.5px solid var(--line);padding:12px 4px}
+table.t th{background:var(--bg);font-weight:700}
+table.t td.h{color:transparent;background:var(--line);cursor:pointer;user-select:none}
+.tri3{display:flex;flex-direction:column;align-items:center;gap:8px}
+.tri3 svg{max-width:360px;font-size:1px}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+const LS='trig_trainer_v1';
+let store={review:[],limit:10,fig:true};
+try{const s=JSON.parse(localStorage.getItem(LS));if(s&&Array.isArray(s.review))store=Object.assign(store,s)}catch(e){}
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify(store))}catch(e){}};
+const $=s=>document.querySelector(s);
+const app=$('#app');
+const fmt=s=>s.includes('/')?`<span class="fr"><i>${s.split('/')[0]}</i><i>${s.split('/')[1]}</i></span>`:s;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const JA={sin:'対辺／斜辺',cos:'隣辺／斜辺',tan:'対辺／隣辺'};
+const SP={30:{sin:'1/2',cos:'√3/2',tan:'√3/3'},45:{sin:'√2/2',cos:'√2/2',tan:'1'},60:{sin:'√3/2',cos:'1/2',tan:'√3'}};
+const SIDES={30:['1','√3','2'],45:['1','1','√2'],60:['√3','1','2']};
+const TRIPLES=[[3,4,5],[5,12,13],[8,15,17],[7,24,25],[20,21,29],[9,12,15],[6,8,10],[12,35,37]];
+const CH=['1/2','√2/2','√3/2','1','√3/3','√3'];
+const gcd=(a,b)=>b?gcd(b,a%b):a;
+const key=q=>q.t==='sp'?`s|${q.f}|${q.ang}`:`t|${q.f}|${q.opp}|${q.adj}|${q.hyp}`;
+
+function mkSp(f,ang){return{t:'sp',f:f||pick(['sin','cos','tan']),ang:ang||pick([30,45,60]),mirror:Math.random()<.5}}
+function mkTri(f,o,a,h){if(o){return{t:'tri',f,opp:o,adj:a,hyp:h,mirror:Math.random()<.5}}
+ const [x,y,z]=pick(TRIPLES);const sw=Math.random()<.5;
+ return{t:'tri',f:f||pick(['sin','cos','tan']),opp:sw?y:x,adj:sw?x:y,hyp:z,mirror:Math.random()<.5}}
+function fromKey(k){const p=k.split('|');return p[0]==='s'?mkSp(p[1],+p[2]):mkTri(p[1],+p[2],+p[3],+p[4])}
+
+let S=null,timer=null;
+
+function home(){
+ clearInterval(timer);
+ const n=store.review.length;
+ app.innerHTML=`<h1>三角比トレーナー</h1><p class="lead">直角三角形の sinθ・cosθ・tanθ を、見てすぐ言えるまで。</p>
+ <div class="card"><h2>出題モード（1ラウンド10問）</h2>
+ <button class="mode" data-m="sp"><b>特別な角 30°・45°・60°</b><span>制限時間つき。選択肢をタップして即答</span></button>
+ <button class="mode" data-m="tri"><b>辺の長さから計算</b><span>3辺が分かる三角形で、比を分数で答える。制限時間なし</span></button>
+ <button class="mode" data-m="mix"><b>ミックス</b><span>上の2種類をランダムに出題</span></button>
+ <button class="mode rv" data-m="review" ${n?'':'disabled'}><b>やり直しモード（${n}問）</b><span>間違えた問題・あとで復習に入れた問題だけ出題。正解すると一覧から消えます</span></button></div>
+ <div class="card"><h2>暗記用</h2><button class="mode" data-m="table" style="margin:0"><b>30°・45°・60° 一覧表</b><span>sin・cos・tan の値と辺の比をまとめて確認</span></button></div>
+ <div class="card"><h2>特別な角の設定</h2><p class="small" style="margin:0 0 6px">制限時間</p><div class="row" id="lim">${[10,7,5].map(s=>`<button class="chip ${store.limit===s?'on':''}" data-s="${s}">${s}秒</button>`).join('')}</div>
+ <p class="small" style="margin:12px 0 6px">問題の図</p><div class="row" id="fg">${[[true,'表示'],[false,'非表示']].map(([v,t])=>`<button class="chip ${store.fig===v?'on':''}" data-v="${v}">${t}</button>`).join('')}</div>
+ <p class="small">非表示にすると「sin 30°」の形で出題されます。慣れてきたら短い制限時間と組み合わせて、反射で答える練習に。</p>
+ <button class="link" id="clr" ${n?'':'hidden'}>やり直しリストを空にする</button></div>`;
+ app.querySelectorAll('.mode').forEach(b=>b.onclick=()=>b.dataset.m==='table'?table():start(b.dataset.m));
+ app.querySelectorAll('#fg .chip').forEach(b=>b.onclick=()=>{store.fig=b.dataset.v==='true';save();home()});
+ app.querySelectorAll('#lim .chip').forEach(b=>b.onclick=()=>{store.limit=+b.dataset.s;save();home()});
+ const c=$('#clr');if(c)c.onclick=()=>{if(confirm('やり直しリストを空にしますか？')){store.review=[];save();home()}};
+}
+
+function start(mode){
+ let qs=[];
+ if(mode==='review')qs=shuffle(store.review).map(fromKey);
+ else for(let i=0;i<10;i++)qs.push(mode==='sp'?mkSp():mode==='tri'?mkTri():(Math.random()<.5?mkSp():mkTri()));
+ S={mode,qs,i:0,score:0,wrong:0,done:false};
+ show();
+}
+
+function figure(q,reveal){
+ let r,ang,labs;
+ if(q.t==='sp'){r=Math.tan(q.ang*Math.PI/180);ang=q.ang;labs=SIDES[q.ang]}
+ else{r=q.opp/q.adj;ang=null;labs=[q.opp,q.adj,q.hyp]}
+ let w=240,h=w*r;if(h>150){h=150;w=h/r}if(w<90){w=90;h=Math.min(w*r,150)}
+ const dx=q.mirror?-1:1,sx=(300-w)/2,Y=185;
+ const T=[q.mirror?sx+w:sx,Y],R=[q.mirror?sx:sx+w,Y],U=[R[0],Y-h];
+ const phi=Math.atan2(h,w),ar=30;
+ const p1=[T[0]+dx*ar,Y],p2=[T[0]+dx*ar*Math.cos(phi),Y-ar*Math.sin(phi)];
+ const lt=[T[0]+dx*50*Math.cos(phi/2),Y-50*Math.sin(phi/2)+5];
+ const sq=12,rx=R[0]-dx*sq;
+ const show=q.t==='tri'||reveal;
+ const L=(x,y,t,a)=>`<text x="${x}" y="${y}" text-anchor="${a}" font-size="15" font-family="Georgia,serif" fill="currentColor">${t}</text>`;
+ const len=Math.hypot(w,h),nx=(q.mirror?h:-h)/len,ny=-w/len,mid=[(T[0]+U[0])/2,(T[1]+U[1])/2];
+ let s=`<svg viewBox="0 0 300 220" role="img" aria-label="直角三角形"><polygon points="${T} ${R} ${U}" fill="var(--bg)" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+ <path d="M${rx},${Y} v-${sq} h${dx*sq}" fill="none" stroke="currentColor" stroke-width="1.5"/>
+ <path d="M${p1} A${ar},${ar} 0 0 ${q.mirror?1:0} ${p2}" fill="none" stroke="var(--ang)" stroke-width="2.5"/>
+ ${L(lt[0],lt[1],`<tspan fill="var(--ang)" font-weight="700">${ang?ang+'°':'θ'}</tspan>`,'middle')}`;
+ if(show){s+=L(R[0]+(q.mirror?-10:10),Y-h/2+5,labs[0],q.mirror?'end':'start')+L((T[0]+R[0])/2,Y+22,labs[1],'middle')+L(mid[0]+nx*16,mid[1]+ny*16+5,labs[2],'middle')}
+ return s+'</svg>';
+}
+
+function show(){
+ clearInterval(timer);
+ const q=S.qs[S.i];
+ const timed=q.t==='sp';
+ const total=S.qs.length;
+ let ans;
+ if(timed)ans=`<div class="choices">${CH.map((c,i)=>`<button class="ch" data-v="${c}" aria-label="${c}">${fmt(c)}</button>`).join('')}</div>`;
+ else ans=`<div class="ans"><input id="in" type="text" autocomplete="off" placeholder="例 4/5 または 0.8" aria-label="答え"><button class="go" id="ok">答える</button></div><p class="small">分数・小数どちらでもOK（小数は小数第2位まで）</p>`;
+ const showFig=!timed||store.fig;
+ app.innerHTML=`<div class="top"><button class="link" id="back">やめる</button><span>${S.i+1} / ${total}${S.mode==='review'?'（やり直し）':''}</span><span>正解 ${S.score}</span></div>
+ <div class="card">${showFig?figure(q,false):''}<div class="q"><em>${q.f}</em> ${showFig?'θ':q.ang+'°'} = ?</div>
+ <div class="bar">${timed?'<i id="tb"></i>':''}</div>${ans}</div><div id="res"></div>`;
+ $('#back').onclick=()=>{if(confirm('ホームに戻りますか？'))home()};
+ if(timed){
+  app.querySelectorAll('.ch').forEach(b=>b.onclick=()=>judge(b.dataset.v===SP[q.ang][q.f],b.dataset.v));
+  const lim=store.limit*1000,t0=Date.now();
+  timer=setInterval(()=>{const left=lim-(Date.now()-t0);const b=$('#tb');if(!b)return;b.style.width=Math.max(0,left/lim*100)+'%';b.classList.toggle('low',left<lim*.3);if(left<=0)judge(false,null,true)},100);
+ }else{
+  const inp=$('#in');inp.focus();
+  const go=()=>{const v=parse(inp.value);if(v===null){inp.style.borderColor='var(--ng)';return}
+   const t=q.f==='sin'?q.opp/q.hyp:q.f==='cos'?q.adj/q.hyp:q.opp/q.adj;
+   judge(Math.abs(v-t)<0.0051,inp.value)};
+  $('#ok').onclick=go;inp.onkeydown=e=>{if(e.key==='Enter')go()};
+ }
+}
+function parse(s){s=s.normalize('NFKC').trim().replace(/\s/g,'');if(!s)return null;
+ if(s.includes('/')){const[a,b,...r]=s.split('/');const x=parseFloat(a),y=parseFloat(b);return r.length||!isFinite(x)||!y?null:x/y}
+ const x=Number(s);return isFinite(x)?x:null}
+
+function explain(q){
+ const f=q.f;
+ if(q.t==='sp'){
+  const sd=SIDES[q.ang],ans=SP[q.ang][f];
+  const num={sin:sd[0],cos:sd[1],tan:sd[0]}[f],den={sin:sd[2],cos:sd[2],tan:sd[1]}[f];
+  const raw=den==='1'?num:num+'/'+den;
+  const tri=q.ang===45?'直角二等辺三角形（辺の比 1 : 1 : √2）':'30°・60°・90°の三角形（辺の比 1 : √3 : 2）';
+  return {ans,html:`<p class="exp">${q.ang}° を含む直角三角形は ${tri}。<br>θ=${q.ang}° から見ると 対辺＝${sd[0]}、隣辺＝${sd[1]}、斜辺＝${sd[2]}（図の通り）。</p>
+  <p class="exp m">${f} ${q.ang}° ＝ ${JA[f].replace('／',' ／ ')} ＝ ${fmt(raw)}${raw!==ans?' ＝ '+fmt(ans)+'<span class="small">（分母の有理化）</span>':''}</p>
+  <div class="tip">覚え方：sin は 30°→45°→60° で ${fmt('1/2')}・${fmt('√2/2')}・${fmt('√3/2')} と増え（分子が √1＝1、√2、√3 の順）、cos はその逆順。tan は ${fmt('√3/3')}・1・√3。</div>`};
+ }
+ const nu={sin:q.opp,cos:q.adj,tan:q.opp}[f],de={sin:q.hyp,cos:q.hyp,tan:q.adj}[f],g=gcd(nu,de);
+ const red=(nu/g)+'/'+(de/g),val=nu/de;
+ return {ans:red,html:`<p class="exp">θ から見て 対辺＝${q.opp}、隣辺＝${q.adj}、斜辺＝${q.hyp}。<br><span class="small">（${q.opp}²＋${q.adj}²＝${q.opp**2+q.adj**2}＝${q.hyp}² で直角三角形と確認できます）</span></p>
+  <p class="exp m">${f}θ ＝ ${JA[f].replace('／',' ／ ')} ＝ ${fmt(nu+'/'+de)}${g>1?' ＝ '+fmt(red)+'<span class="small">（約分）</span>':''} ≒ ${val.toFixed(3)}</p>
+  <div class="tip">sin は「斜辺の上に対辺」、cos は「斜辺の上に隣辺」、tan は「隣辺の上に対辺」。どの辺が対辺・隣辺かは θ の位置で決まります。</div>`};
+}
+
+function judge(ok,given,timeout){
+ clearInterval(timer);
+ const q=S.qs[S.i],k=key(q),ex=explain(q);
+ app.querySelectorAll('.ch').forEach(b=>{b.disabled=true;if(b.dataset.v===SP[q.ang]?.[q.f])b.classList.add('right');else if(b.dataset.v===given)b.classList.add('wrong')});
+ const inp=$('#in');if(inp){inp.disabled=true;$('#ok').disabled=true}
+ const fig=$('.card svg');if(fig)fig.outerHTML=figure(q,true);else $('.card').insertAdjacentHTML('afterbegin',figure(q,true));
+ let inStore=store.review.includes(k);
+ if(ok){S.score++;if(S.mode==='review'&&inStore){store.review=store.review.filter(x=>x!==k);inStore=false}}
+ else{S.wrong++;if(!inStore){store.review.push(k);inStore=true}}
+ save();
+ const last=S.i===S.qs.length-1;
+ $('#res').innerHTML=`<div class="card res ${ok?'ok':'ng'}"><p class="verdict">${ok?'○ 正解！':(timeout?'× 時間切れ':'× 不正解')}　<span class="m" style="font-weight:400;color:var(--ink)">答え：${fmt(ex.ans)}</span></p>
+ ${ex.html}
+ <div class="row" style="margin-top:12px"><button class="go sec" id="fl">${inStore?'復習リストから外す':'あとで復習に入れる'}</button><button class="go" id="nx" style="margin-left:auto">${last?'結果を見る':'次の問題'}</button></div></div>`;
+ $('#fl').onclick=e=>{inStore=!inStore;store.review=store.review.filter(x=>x!==k);if(inStore)store.review.push(k);save();e.target.textContent=inStore?'復習リストから外す':'あとで復習に入れる'};
+ $('#nx').onclick=next;$('#nx').focus();
+ $('#res').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function next(){if(S.i>=S.qs.length-1)return result();S.i++;show();window.scrollTo(0,0)}
+function result(){
+ const n=store.review.length,t=S.qs.length;
+ app.innerHTML=`<h1>結果</h1><div class="card"><div class="big">${S.score} / ${t}</div><p style="text-align:center;margin:0">${S.score===t?'全問正解です。':'間違えた問題は「やり直しモード」に保存されています。'}</p></div>
+ <div class="row"><button class="go" id="again">もう一度</button>${n?`<button class="go sec" id="rv">やり直しモード（${n}問）</button>`:''}<button class="link" id="hm">ホームへ</button></div>`;
+ $('#again').onclick=()=>start(S.mode==='review'?'mix':S.mode);
+ const rv=$('#rv');if(rv)rv.onclick=()=>start('review');
+ $('#hm').onclick=home;window.scrollTo(0,0);
+}
+function table(){
+ let hid=false;
+ const draw=()=>{
+  const cell=(f,a)=>`<td class="${hid?'h':''}">${fmt(SP[a][f])}</td>`;
+  app.innerHTML=`<div class="top"><button class="link" id="hm">← ホームへ</button><span></span></div><h1>30°・45°・60° 一覧表</h1>
+  <div class="card"><table class="t"><tr><th></th><th>30°</th><th>45°</th><th>60°</th></tr>
+  ${['sin','cos','tan'].map(f=>`<tr><th>${f}</th>${[30,45,60].map(a=>cell(f,a)).join('')}</tr>`).join('')}</table>
+  <div class="row" style="margin-top:12px"><button class="chip ${hid?'on':''}" id="hd">値を隠してチェック</button>${hid?'<span class="small">マスをタップすると表示</span>':''}</div></div>
+  <div class="card"><h2>辺の比</h2><div class="tri3">${[30,45,60].map(a=>figure({t:'sp',ang:a,mirror:false},true).replace(/font-size="15"/g,'font-size="24"').replace('0 0 300 220','-25 0 350 220')).join('')}</div>
+  <p class="exp">sin＝対辺／斜辺、cos＝隣辺／斜辺、tan＝対辺／隣辺。<br>30°・60° の三角形は 1 : √3 : 2、45° の三角形は 1 : 1 : √2。</p></div>
+  <div class="card"><h2>覚え方</h2><p class="exp">sin は 30°→45°→60° で ${fmt('1/2')}・${fmt('√2/2')}・${fmt('√3/2')} と増え（分子が √1＝1、√2、√3 の順）、cos はその逆順です。tan は sin÷cos で、${fmt('√3/3')}・1・√3 になります。<br>sin 30°＝cos 60°、sin 60°＝cos 30° のように、足して 90° になる角の sin と cos は同じ値です。</p></div>`;
+  $('#hm').onclick=home;
+  $('#hd').onclick=()=>{hid=!hid;draw()};
+  app.querySelectorAll('td.h').forEach(td=>td.onclick=()=>td.classList.remove('h'));
+ };
+ draw();window.scrollTo(0,0);
+}
+document.addEventListener('keydown',e=>{
+ const c=app.querySelectorAll('.ch');if(c.length&&!c[0].disabled&&/^[1-6]$/.test(e.key))c[+e.key-1].click()});
+home();
+</script>
+</body>
+</html>
