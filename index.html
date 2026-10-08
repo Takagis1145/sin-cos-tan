@@ -22,6 +22,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-of
 .mode{display:block;width:100%;text-align:left;background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px}
 .mode:hover{border-color:var(--acc)}
 .mode b{display:block}.mode span{color:var(--sub);font-size:.85rem}
+.mode .note{display:block;color:var(--ng);font-weight:700;font-size:.8rem;margin-top:4px}
 .mode.rv{border-color:var(--ng)}
 .mode:disabled{opacity:.45;cursor:not-allowed}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -56,6 +57,11 @@ svg{width:100%;height:auto;display:block}
 .tip{background:var(--bg);border-radius:8px;padding:8px 10px;font-size:.85rem;color:var(--sub);margin-top:8px}
 .big{font-size:2.6rem;font-family:Georgia,serif;text-align:center;margin:6px 0}
 .hide{display:none}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.pad button{background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:10px 0;font-family:Georgia,serif;font-size:1.3rem;min-height:48px;touch-action:manipulation}
+.pad button:active:not(:disabled){background:var(--line)}
+.pad button.wide{grid-column:span 2;font-family:inherit;font-size:.95rem}
+.pad button:disabled{opacity:.5}
 table.t{width:100%;border-collapse:collapse;text-align:center;font-family:Georgia,serif;font-size:1.25rem}
 table.t th,table.t td{border:1.5px solid var(--line);padding:12px 4px}
 table.t th{background:var(--bg);font-weight:700}
@@ -68,7 +74,7 @@ table.t td.h{color:transparent;background:var(--line);cursor:pointer;user-select
 <main id="app"></main>
 <script>
 const LS='trig_trainer_v1';
-let store={review:[],limit:10,fig:true};
+let store={review:[],limit:10,fig:true,input:'choice'};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s&&Array.isArray(s.review))store=Object.assign(store,s)}catch(e){}
 const save=()=>{try{localStorage.setItem(LS,JSON.stringify(store))}catch(e){}};
 const $=s=>document.querySelector(s);
@@ -97,16 +103,18 @@ function home(){
  const n=store.review.length;
  app.innerHTML=`<h1>三角比トレーナー</h1><p class="lead">直角三角形の sinθ・cosθ・tanθ を、見てすぐ言えるまで。</p>
  <div class="card"><h2>出題モード（1ラウンド10問）</h2>
- <button class="mode" data-m="sp"><b>特別な角 30°・45°・60°</b><span>制限時間つき。選択肢をタップして即答</span></button>
+ <button class="mode" data-m="sp"><b>特別な角 30°・45°・60°</b><span>制限時間つき。選択肢をタップして即答<span class="note">※オプションで設定を変更可能です（下の「特別な角の問題の設定」から）</span></span></button>
  <button class="mode" data-m="tri"><b>辺の長さから計算</b><span>3辺が分かる三角形で、比を分数で答える。制限時間なし</span></button>
  <button class="mode" data-m="mix"><b>ミックス</b><span>上の2種類をランダムに出題</span></button>
  <button class="mode rv" data-m="review" ${n?'':'disabled'}><b>やり直しモード（${n}問）</b><span>間違えた問題・あとで復習に入れた問題だけ出題。正解すると一覧から消えます</span></button></div>
  <div class="card"><h2>暗記用</h2><button class="mode" data-m="table" style="margin:0"><b>30°・45°・60° 一覧表</b><span>sin・cos・tan の値と辺の比をまとめて確認</span></button></div>
- <div class="card"><h2>特別な角の設定</h2><p class="small" style="margin:0 0 6px">制限時間</p><div class="row" id="lim">${[10,7,5].map(s=>`<button class="chip ${store.limit===s?'on':''}" data-s="${s}">${s}秒</button>`).join('')}</div>
+ <div class="card"><h2>特別な角の問題の設定</h2><p class="small" style="margin:0 0 6px">制限時間</p><div class="row" id="lim">${[20,15,10,7,5].map(s=>`<button class="chip ${store.limit===s?'on':''}" data-s="${s}">${s}秒</button>`).join('')}</div>
+ <p class="small" style="margin:12px 0 6px">回答方法</p><div class="row" id="ip">${[['choice','選択式'],['text','手入力']].map(([v,t])=>`<button class="chip ${store.input===v?'on':''}" data-v="${v}">${t}</button>`).join('')}</div>
  <p class="small" style="margin:12px 0 6px">問題の図</p><div class="row" id="fg">${[[true,'表示'],[false,'非表示']].map(([v,t])=>`<button class="chip ${store.fig===v?'on':''}" data-v="${v}">${t}</button>`).join('')}</div>
  <p class="small">非表示にすると「sin 30°」の形で出題されます。慣れてきたら短い制限時間と組み合わせて、反射で答える練習に。</p>
  <button class="link" id="clr" ${n?'':'hidden'}>やり直しリストを空にする</button></div>`;
  app.querySelectorAll('.mode').forEach(b=>b.onclick=()=>b.dataset.m==='table'?table():start(b.dataset.m));
+ app.querySelectorAll('#ip .chip').forEach(b=>b.onclick=()=>{store.input=b.dataset.v;save();home()});
  app.querySelectorAll('#fg .chip').forEach(b=>b.onclick=()=>{store.fig=b.dataset.v==='true';save();home()});
  app.querySelectorAll('#lim .chip').forEach(b=>b.onclick=()=>{store.limit=+b.dataset.s;save();home()});
  const c=$('#clr');if(c)c.onclick=()=>{if(confirm('やり直しリストを空にしますか？')){store.review=[];save();home()}};
@@ -115,7 +123,10 @@ function home(){
 function start(mode){
  let qs=[];
  if(mode==='review')qs=shuffle(store.review).map(fromKey);
- else for(let i=0;i<10;i++)qs.push(mode==='sp'?mkSp():mode==='tri'?mkTri():(Math.random()<.5?mkSp():mkTri()));
+ else for(let i=0;i<10;i++){let q,n=0;
+  do{q=mode==='sp'?mkSp():mode==='tri'?mkTri():(Math.random()<.5?mkSp():mkTri())}
+  while(i>0&&key(q)===key(qs[i-1])&&++n<50);
+  qs.push(q)}
  S={mode,qs,i:0,score:0,wrong:0,done:false};
  show();
 }
@@ -147,29 +158,43 @@ function show(){
  const q=S.qs[S.i];
  const timed=q.t==='sp';
  const total=S.qs.length;
+const textMode=!timed||store.input==='text';
  let ans;
- if(timed)ans=`<div class="choices">${CH.map((c,i)=>`<button class="ch" data-v="${c}" aria-label="${c}">${fmt(c)}</button>`).join('')}</div>`;
- else ans=`<div class="ans"><input id="in" type="text" autocomplete="off" placeholder="例 4/5 または 0.8" aria-label="答え"><button class="go" id="ok">答える</button></div><p class="small">分数・小数どちらでもOK（小数は小数第2位まで）</p>`;
+ if(!textMode)ans=`<div class="choices">${CH.map((c,i)=>`<button class="ch" data-v="${c}" aria-label="${c}">${fmt(c)}</button>`).join('')}</div>`;
+ else ans=`<div class="ans"><input id="in" type="text" inputmode="none" autocomplete="off" placeholder="${timed?'例 √3/2':'例 4/5 または 0.8'}" aria-label="答え"><button class="go" id="ok">答える</button></div>
+ <div class="pad">${['7','8','9','⌫','4','5','6','√','1','2','3','/','0','.','全消去'].map(k=>`<button type="button" class="${k==='全消去'?'wide':''}" data-k="${k}">${k}</button>`).join('')}</div>
+ <p class="small">${timed?'分母の有理化は不要です（1/√3 でも √3/3 でも正解）。':'分数・小数どちらでもOK（小数は小数第2位まで）。'}</p>`;
  const showFig=!timed||store.fig;
  app.innerHTML=`<div class="top"><button class="link" id="back">やめる</button><span>${S.i+1} / ${total}${S.mode==='review'?'（やり直し）':''}</span><span>正解 ${S.score}</span></div>
  <div class="card">${showFig?figure(q,false):''}<div class="q"><em>${q.f}</em> ${showFig?'θ':q.ang+'°'} = ?</div>
  <div class="bar">${timed?'<i id="tb"></i>':''}</div>${ans}</div><div id="res"></div>`;
  $('#back').onclick=()=>{if(confirm('ホームに戻りますか？'))home()};
+ if(!textMode)app.querySelectorAll('.ch').forEach(b=>b.onclick=()=>judge(b.dataset.v===SP[q.ang][q.f],b.dataset.v));
  if(timed){
-  app.querySelectorAll('.ch').forEach(b=>b.onclick=()=>judge(b.dataset.v===SP[q.ang][q.f],b.dataset.v));
   const lim=store.limit*1000,t0=Date.now();
   timer=setInterval(()=>{const left=lim-(Date.now()-t0);const b=$('#tb');if(!b)return;b.style.width=Math.max(0,left/lim*100)+'%';b.classList.toggle('low',left<lim*.3);if(left<=0)judge(false,null,true)},100);
- }else{
-  const inp=$('#in');inp.focus();
-  const go=()=>{const v=parse(inp.value);if(v===null){inp.style.borderColor='var(--ng)';return}
-   const t=q.f==='sin'?q.opp/q.hyp:q.f==='cos'?q.adj/q.hyp:q.opp/q.adj;
-   judge(Math.abs(v-t)<0.0051,inp.value)};
+ }
+ if(textMode){
+  const inp=$('#in');inp.focus({preventScroll:true});
+  const tol=timed?0.0006:0.0051,t=targetVal(q);
+  const go=()=>{const v=evalExpr(inp.value);if(v===null){inp.style.borderColor='var(--ng)';return}
+   judge(Math.abs(v-t)<tol,inp.value)};
   $('#ok').onclick=go;inp.onkeydown=e=>{if(e.key==='Enter')go()};
+  app.querySelectorAll('.pad button').forEach(b=>{
+   b.onmousedown=e=>e.preventDefault();
+   b.onclick=()=>{const k=b.dataset.k;inp.style.borderColor='';inp.focus({preventScroll:true});
+    if(k==='全消去')inp.value='';
+    else if(k==='⌫'){const a=inp.selectionStart,e=inp.selectionEnd;if(a!==e)inp.setRangeText('',a,e,'end');else if(a>0)inp.setRangeText('',a-1,a,'end')}
+    else inp.setRangeText(k,inp.selectionStart,inp.selectionEnd,'end')};
+  });
  }
 }
-function parse(s){s=s.normalize('NFKC').trim().replace(/\s/g,'');if(!s)return null;
- if(s.includes('/')){const[a,b,...r]=s.split('/');const x=parseFloat(a),y=parseFloat(b);return r.length||!isFinite(x)||!y?null:x/y}
- const x=Number(s);return isFinite(x)?x:null}
+function targetVal(q){return q.t==='sp'?evalExpr(SP[q.ang][q.f]):q.f==='sin'?q.opp/q.hyp:q.f==='cos'?q.adj/q.hyp:q.opp/q.adj}
+function evalExpr(s){
+ s=s.normalize('NFKC').trim().replace(/\s/g,'').replace(/ルート/g,'√');if(!s)return null;
+ s=s.replace(/(\d|\))(?=√)/g,'$1*').replace(/√\(?(\d+(?:\.\d+)?)\)?/g,(m,n)=>'('+Math.sqrt(+n)+')').replace(/\)(?=[\d(])/g,')*');
+ if(!/^[\d.+\-*\/()]+$/.test(s))return null;
+ try{const v=Function('"use strict";return ('+s+')')();return isFinite(v)?v:null}catch(e){return null}}
 
 function explain(q){
  const f=q.f;
@@ -193,7 +218,7 @@ function judge(ok,given,timeout){
  clearInterval(timer);
  const q=S.qs[S.i],k=key(q),ex=explain(q);
  app.querySelectorAll('.ch').forEach(b=>{b.disabled=true;if(b.dataset.v===SP[q.ang]?.[q.f])b.classList.add('right');else if(b.dataset.v===given)b.classList.add('wrong')});
- const inp=$('#in');if(inp){inp.disabled=true;$('#ok').disabled=true}
+ const inp=$('#in');if(inp){inp.disabled=true;$('#ok').disabled=true;app.querySelectorAll('.pad button').forEach(b=>b.disabled=true)}
  const fig=$('.card svg');if(fig)fig.outerHTML=figure(q,true);else $('.card').insertAdjacentHTML('afterbegin',figure(q,true));
  let inStore=store.review.includes(k);
  if(ok){S.score++;if(S.mode==='review'&&inStore){store.review=store.review.filter(x=>x!==k);inStore=false}}
