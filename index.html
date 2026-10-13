@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>三角比トレーナー</title>
+<title>三角比トレーニング</title>
 <style>
 :root{--bg:#eef3f7;--panel:#fff;--ink:#14213d;--sub:#5b6b82;--line:#c9d6e3;--acc:#1f5eff;--ok:#0f8a5f;--ng:#d6336c;--ang:#e08a00;--grid:#dbe5ee;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -66,8 +66,8 @@ table.t{width:100%;border-collapse:collapse;text-align:center;font-family:Georgi
 table.t th,table.t td{border:1.5px solid var(--line);padding:12px 4px}
 table.t th{background:var(--bg);font-weight:700}
 table.t td.h{color:transparent;background:var(--line);cursor:pointer;user-select:none}
-.tri3{display:flex;flex-direction:column;align-items:center;gap:8px}
-.tri3 svg{max-width:360px;font-size:1px}
+.tri3{display:flex;align-items:flex-end;gap:4px}
+.tri3 svg{width:auto}
 </style>
 </head>
 <body>
@@ -101,14 +101,14 @@ let S=null,timer=null;
 function home(){
  clearInterval(timer);
  const n=store.review.length;
- app.innerHTML=`<h1>三角比トレーナー</h1><p class="lead">直角三角形の sinθ・cosθ・tanθ を、見てすぐ言えるまで。</p>
+ app.innerHTML=`<h1>三角比トレーニング</h1><p class="lead">直角三角形の sinθ・cosθ・tanθ をトレーニング</p>
  <div class="card"><h2>出題モード（1ラウンド10問）</h2>
- <button class="mode" data-m="sp"><b>特別な角 30°・45°・60°</b><span>制限時間つき。選択肢をタップして即答<span class="note">※オプションで設定を変更可能です（下の「特別な角の問題の設定」から）</span></span></button>
+ <button class="mode" data-m="sp"><b>特別な角度 30°・45°・60°</b><span>即答を目標に。制限時間つき<span class="note">※オプションで設定を変更可能です（下の「特別な角度の問題の設定」から）</span></span></button>
  <button class="mode" data-m="tri"><b>辺の長さから計算</b><span>3辺が分かる三角形で、比を分数で答える。制限時間なし</span></button>
  <button class="mode" data-m="mix"><b>ミックス</b><span>上の2種類をランダムに出題</span></button>
- <button class="mode rv" data-m="review" ${n?'':'disabled'}><b>やり直しモード（${n}問）</b><span>間違えた問題・あとで復習に入れた問題だけ出題。正解すると一覧から消えます</span></button></div>
+ <button class="mode rv" data-m="review" ${n?'':'disabled'}><b>やり直しモード（${n}問）</b><span>間違えた問題だけを出題。正解すると一覧から消えます</span></button></div>
  <div class="card"><h2>暗記用</h2><button class="mode" data-m="table" style="margin:0"><b>30°・45°・60° 一覧表</b><span>sin・cos・tan の値と辺の比をまとめて確認</span></button></div>
- <div class="card"><h2>特別な角の問題の設定</h2><p class="small" style="margin:0 0 6px">制限時間</p><div class="row" id="lim">${[20,15,10,7,5].map(s=>`<button class="chip ${store.limit===s?'on':''}" data-s="${s}">${s}秒</button>`).join('')}</div>
+ <div class="card"><h2>特別な角度の問題の設定</h2><p class="small" style="margin:0 0 6px">制限時間</p><div class="row" id="lim">${[20,15,10,7,5].map(s=>`<button class="chip ${store.limit===s?'on':''}" data-s="${s}">${s}秒</button>`).join('')}</div>
  <p class="small" style="margin:12px 0 6px">回答方法</p><div class="row" id="ip">${[['choice','選択式'],['text','手入力']].map(([v,t])=>`<button class="chip ${store.input===v?'on':''}" data-v="${v}">${t}</button>`).join('')}</div>
  <p class="small" style="margin:12px 0 6px">問題の図</p><div class="row" id="fg">${[[true,'表示'],[false,'非表示']].map(([v,t])=>`<button class="chip ${store.fig===v?'on':''}" data-v="${v}">${t}</button>`).join('')}</div>
  <p class="small">非表示にすると「sin 30°」の形で出題されます。慣れてきたら短い制限時間と組み合わせて、反射で答える練習に。</p>
@@ -136,7 +136,9 @@ function figure(q,reveal){
  if(q.t==='sp'){r=Math.tan(q.ang*Math.PI/180);ang=q.ang;labs=SIDES[q.ang]}
  else{r=q.opp/q.adj;ang=null;labs=[q.opp,q.adj,q.hyp]}
  let w=240,h=w*r;if(h>150){h=150;w=h/r}if(w<90){w=90;h=Math.min(w*r,150)}
- const dx=q.mirror?-1:1,sx=(300-w)/2,Y=185;
+ let sx=(300-w)/2,Y=185,vb='0 0 300 220',st='';
+ if(q.dim){w=q.dim[0];h=q.dim[1];sx=20;Y=h+25;const vw=w+70;vb=`0 0 ${vw} ${h+60}`;st=` style="flex:${vw} 1 0;min-width:0"`}
+ const dx=q.mirror?-1:1;
  const T=[q.mirror?sx+w:sx,Y],R=[q.mirror?sx:sx+w,Y],U=[R[0],Y-h];
  const phi=Math.atan2(h,w),ar=30;
  const p1=[T[0]+dx*ar,Y],p2=[T[0]+dx*ar*Math.cos(phi),Y-ar*Math.sin(phi)];
@@ -145,7 +147,7 @@ function figure(q,reveal){
  const show=q.t==='tri'||reveal;
  const L=(x,y,t,a)=>`<text x="${x}" y="${y}" text-anchor="${a}" font-size="15" font-family="Georgia,serif" fill="currentColor">${t}</text>`;
  const len=Math.hypot(w,h),nx=(q.mirror?h:-h)/len,ny=-w/len,mid=[(T[0]+U[0])/2,(T[1]+U[1])/2];
- let s=`<svg viewBox="0 0 300 220" role="img" aria-label="直角三角形"><polygon points="${T} ${R} ${U}" fill="var(--bg)" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+ let s=`<svg viewBox="${vb}"${st} role="img" aria-label="直角三角形"><polygon points="${T} ${R} ${U}" fill="var(--bg)" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
  <path d="M${rx},${Y} v-${sq} h${dx*sq}" fill="none" stroke="currentColor" stroke-width="1.5"/>
  <path d="M${p1} A${ar},${ar} 0 0 ${q.mirror?1:0} ${p2}" fill="none" stroke="var(--ang)" stroke-width="2.5"/>
  ${L(lt[0],lt[1],`<tspan fill="var(--ang)" font-weight="700">${ang?ang+'°':'θ'}</tspan>`,'middle')}`;
@@ -160,7 +162,7 @@ function show(){
  const total=S.qs.length;
 const textMode=!timed||store.input==='text';
  let ans;
- if(!textMode)ans=`<div class="choices">${CH.map((c,i)=>`<button class="ch" data-v="${c}" aria-label="${c}">${fmt(c)}</button>`).join('')}</div>`;
+ if(!textMode)ans=`<div class="choices">${shuffle(CH).map((c,i)=>`<button class="ch" data-v="${c}" aria-label="${c}">${fmt(c)}</button>`).join('')}</div>`;
  else ans=`<div class="ans"><input id="in" type="text" inputmode="none" autocomplete="off" placeholder="${timed?'例 √3/2':'例 4/5 または 0.8'}" aria-label="答え"><button class="go" id="ok">答える</button></div>
  <div class="pad">${['7','8','9','⌫','4','5','6','√','1','2','3','/','0','.','全消去'].map(k=>`<button type="button" class="${k==='全消去'?'wide':''}" data-k="${k}">${k}</button>`).join('')}</div>
  <p class="small">${timed?'分母の有理化は不要です（1/√3 でも √3/3 でも正解）。':'分数・小数どちらでもOK（小数は小数第2位まで）。'}</p>`;
@@ -205,7 +207,7 @@ function explain(q){
   const tri=q.ang===45?'直角二等辺三角形（辺の比 1 : 1 : √2）':'30°・60°・90°の三角形（辺の比 1 : √3 : 2）';
   return {ans,html:`<p class="exp">${q.ang}° を含む直角三角形は ${tri}。<br>θ=${q.ang}° から見ると 対辺＝${sd[0]}、隣辺＝${sd[1]}、斜辺＝${sd[2]}（図の通り）。</p>
   <p class="exp m">${f} ${q.ang}° ＝ ${JA[f].replace('／',' ／ ')} ＝ ${fmt(raw)}${raw!==ans?' ＝ '+fmt(ans)+'<span class="small">（分母の有理化）</span>':''}</p>
-  <div class="tip">覚え方：sin は 30°→45°→60° で ${fmt('1/2')}・${fmt('√2/2')}・${fmt('√3/2')} と増え（分子が √1＝1、√2、√3 の順）、cos はその逆順。tan は ${fmt('√3/3')}・1・√3。</div>`};
+  <div class="tip">覚え方：sin は 30°→45°→60° で ${fmt('1/2')}・${fmt('√2/2')}・${fmt('√3/2')} と増え（分子が 1、√2、√3 の順）、cos はその逆順。tan は ${fmt('√3/3')}・1・√3。</div>`};
  }
  const nu={sin:q.opp,cos:q.adj,tan:q.opp}[f],de={sin:q.hyp,cos:q.hyp,tan:q.adj}[f],g=gcd(nu,de);
  const red=(nu/g)+'/'+(de/g),val=nu/de;
@@ -227,8 +229,8 @@ function judge(ok,given,timeout){
  const last=S.i===S.qs.length-1;
  $('#res').innerHTML=`<div class="card res ${ok?'ok':'ng'}"><p class="verdict">${ok?'○ 正解！':(timeout?'× 時間切れ':'× 不正解')}　<span class="m" style="font-weight:400;color:var(--ink)">答え：${fmt(ex.ans)}</span></p>
  ${ex.html}
- <div class="row" style="margin-top:12px"><button class="go sec" id="fl">${inStore?'復習リストから外す':'あとで復習に入れる'}</button><button class="go" id="nx" style="margin-left:auto">${last?'結果を見る':'次の問題'}</button></div></div>`;
- $('#fl').onclick=e=>{inStore=!inStore;store.review=store.review.filter(x=>x!==k);if(inStore)store.review.push(k);save();e.target.textContent=inStore?'復習リストから外す':'あとで復習に入れる'};
+ <div class="row" style="margin-top:12px"><button class="go sec" id="fl">${inStore?'やり直しモードから外す':'やり直しモードに入れる'}</button><button class="go" id="nx" style="margin-left:auto">${last?'結果を見る':'次の問題'}</button></div></div>`;
+ $('#fl').onclick=e=>{inStore=!inStore;store.review=store.review.filter(x=>x!==k);if(inStore)store.review.push(k);save();e.target.textContent=inStore?'やり直しモードから外す':'やり直しモードに入れる'};
  $('#nx').onclick=next;$('#nx').focus();
  $('#res').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
@@ -249,9 +251,9 @@ function table(){
   <div class="card"><table class="t"><tr><th></th><th>30°</th><th>45°</th><th>60°</th></tr>
   ${['sin','cos','tan'].map(f=>`<tr><th>${f}</th>${[30,45,60].map(a=>cell(f,a)).join('')}</tr>`).join('')}</table>
   <div class="row" style="margin-top:12px"><button class="chip ${hid?'on':''}" id="hd">値を隠してチェック</button>${hid?'<span class="small">マスをタップすると表示</span>':''}</div></div>
-  <div class="card"><h2>辺の比</h2><div class="tri3">${[30,45,60].map(a=>figure({t:'sp',ang:a,mirror:false},true).replace(/font-size="15"/g,'font-size="24"').replace('0 0 300 220','-25 0 350 220')).join('')}</div>
+  <div class="card"><h2>辺の比</h2><div class="tri3">${[30,45,60].map(a=>figure({t:'sp',ang:a,mirror:false,dim:[170*Math.cos(a*Math.PI/180),170*Math.sin(a*Math.PI/180)]},true).replace(/font-size="15"/g,'font-size="24"')).join('')}</div>
   <p class="exp">sin＝対辺／斜辺、cos＝隣辺／斜辺、tan＝対辺／隣辺。<br>30°・60° の三角形は 1 : √3 : 2、45° の三角形は 1 : 1 : √2。</p></div>
-  <div class="card"><h2>覚え方</h2><p class="exp">sin は 30°→45°→60° で ${fmt('1/2')}・${fmt('√2/2')}・${fmt('√3/2')} と増え（分子が √1＝1、√2、√3 の順）、cos はその逆順です。tan は sin÷cos で、${fmt('√3/3')}・1・√3 になります。<br>sin 30°＝cos 60°、sin 60°＝cos 30° のように、足して 90° になる角の sin と cos は同じ値です。</p></div>`;
+  <div class="card"><h2>覚え方</h2><p class="exp">sin は 30°→45°→60° で ${fmt('1/2')}・${fmt('√2/2')}・${fmt('√3/2')} と増え（分子が 1、√2、√3 の順）、cos はその逆順です。tan は sin÷cos で、${fmt('√3/3')}・1・√3 になります。<br>sin 30°＝cos 60°、sin 60°＝cos 30° のように、足して 90° になる角の sin と cos は同じ値です。</p></div>`;
   $('#hm').onclick=home;
   $('#hd').onclick=()=>{hid=!hid;draw()};
   app.querySelectorAll('td.h').forEach(td=>td.onclick=()=>td.classList.remove('h'));
